@@ -24,17 +24,33 @@ y_val = data_2013.values[:, -1]
 X_test = np.concatenate((data_2014.values[:, :9], data_2015.values[:, :9]))
 y_test = np.concatenate((data_2014.values[:, -1], data_2015.values[:, -1]))
 
+X_train_2 = np.concatenate((X_train, X_val))
+y_train_2 = np.concatenate((y_train, y_val))
 
 model1 = LinearRegression().fit(X_train, y_train)
-y_predict = model1.predict(X_val)
-print(y_predict)
+model2 = LinearRegression().fit(X_train_2, y_train_2)
 
-r_sq = model1.score(X_val, y_val)
-spcorr, p = spearmanr(y_val, y_predict)
+y_predict1 = model1.predict(X_val)
+y_predict2 = model2.predict(X_test)
+print(y_predict1)
+print(y_predict2)
 
-print("mean absolute error:", mean_absolute_error(y_val, y_predict))
-print("spearman correlation:", spcorr)
-print('coefficient of determination:', r_sq)
+r_sq_1 = model1.score(X_val, y_val)
+spcorr_1, p1 = spearmanr(y_val, y_predict1)
+
+r_sq_2 = model2.score(X_test, y_test)
+spcorr_2, p2 = spearmanr(y_test, y_predict2)
+
+print(" MODEL 1")
+print("mean absolute error:", mean_absolute_error(y_val, y_predict1))
+print("spearman correlation:", spcorr_1)
+print('R_squared:', r_sq_1)
+print()
+print(" MODEL 2")
+print("mean absolute error:", mean_absolute_error(y_test, y_predict2))
+print("spearman correlation:", spcorr_2)
+print('R_squared:', r_sq_2)
+print()
 
 
 
