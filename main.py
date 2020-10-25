@@ -1,12 +1,9 @@
 # Load libraries
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 from scipy.stats import spearmanr
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 data_2011 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2011.csv")
 data_2012 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2012.csv")
