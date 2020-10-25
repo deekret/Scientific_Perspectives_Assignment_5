@@ -5,11 +5,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 from scipy.stats import spearmanr
 
-data_2011 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2011.csv")
-data_2012 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2012.csv")
-data_2013 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2013.csv")
-data_2014 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2014.csv")
-data_2015 = pd.read_csv("C:/Users/leoze/Desktop/pp_gas_emission/gt_2015.csv")
+data_2011 = pd.read_csv("pp_gas_emission/gt_2011.csv")
+data_2012 = pd.read_csv("pp_gas_emission/gt_2012.csv")
+data_2013 = pd.read_csv("pp_gas_emission/gt_2013.csv")
+data_2014 = pd.read_csv("pp_gas_emission/gt_2014.csv")
+data_2015 = pd.read_csv("pp_gas_emission/gt_2015.csv")
 
 features1 = data_2011.columns[:9]
 features2 = data_2011.columns[10:11]
