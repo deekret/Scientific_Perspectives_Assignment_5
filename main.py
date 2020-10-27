@@ -69,21 +69,6 @@ print("#################")
 print("Phase 2:")
 print("#################")
 
-# Just some renaming
-
-pca = PCA()
-
-X_train_pca = pca.fit_transform(X_train)
-# = pca.fit_transform(X_test)
-
-explained_variance = pca.explained_variance_ratio_
-# Display value as a float
-output = ['{:f}'.format(x) for x in explained_variance]
-print(output)
-
-model3 = LinearRegression().fit(X_train, y_train)
-y_pred = model3.predict(X_test)
-
 
 
 
