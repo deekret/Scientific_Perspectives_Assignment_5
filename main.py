@@ -222,6 +222,52 @@ plt.show()
 
 print("#################")
 
+print("#################")
+print("Phase 3:")
+
+# divide 2013, 2014 and 2015 into 10 blocks of equal size
+validationSplit = data_2013
+validationSplit.apply(stats.zscore)
+X_SplitVal = validationSplit[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
+Y_SplitVal = validationSplit[['NOX']]
+
+files3 = []
+files3.append(data_2014)
+files3.append(data_2015)
+testingSplit = pd.concat(files2, axis=0, ignore_index=True)
+testingSplit.apply(stats.zscore)
+X_SplitTest = testingSplit[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
+Y_SplitTest = testingSplit[['NOX']]
+
+X_SplitValNorm = stats.zscore(X_SplitVal)
+Y_SplitValNorm = stats.zscore(Y_SplitVal)
+
+X_SplitTestNorm = stats.zscore(X_SplitTest)
+Y_SplitTestNorm = stats.zscore(Y_SplitTest)
+
+split_validation_array = np.array_split(validationSplit, 10)
+split_testing_array = np.array_split(testingSplit, 10)
+
+#model 2 and model 3
+y = 0
+while y < 9:
+    x_split = split_testing_array[y][['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]
+    y_split = split_testing_array[y][['NOX']]
+    y_predictSplit = model1.predict(x_split)
+    spcorr_split, p3 = spearmanr(y_split, y_predictSplit)
+    r_sq_split = model1.score(x_split, y_split)
+    mean_absolute_error_split = mean_absolute_error(y_split, y_predictSplit)
+    print()
+    print("training ", y)
+    print("mean absolute error:", mean_absolute_error_split)
+    print("spearman correlation:", spcorr_split)
+    print('R_squared:', r_sq_split)
+    print()
+    model1 = LinearRegression.fit(pd.concat((X_train, x_split), axis=0, ignore_index=True))
+    y = y + 1
+
+print("#################")
+
 
 
 
