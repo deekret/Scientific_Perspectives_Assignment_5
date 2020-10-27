@@ -22,17 +22,27 @@ features = features1.append(features2)
 
 print("#################")
 print("Phase 1:")
-print("#################")
+#get all the files for the model
+trainFiles = []
+trainFiles.append(data_2011)
+trainFiles.append(data_2012)
+frame = pd.concat(trainFiles, axis=0, ignore_index=True)
 
-X_train = np.concatenate((data_2011.values[:, :9], data_2012.values[:, :9]))
-y_train = np.concatenate((data_2011.values[:, -1], data_2012.values[:, -1]))
+X_train = frame[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]
+y_train = frame[['NOX']]
 
-X_val = data_2013.values[:, :9]
-y_val = data_2013.values[:, -1]
+validationFrame = data_2013
+X_val = validationFrame[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]
+y_val = validationFrame[['NOX']]
 
-X_test = np.concatenate((data_2014.values[:, :9], data_2015.values[:, :9]))
-y_test = np.concatenate((data_2014.values[:, -1], data_2015.values[:, -1]))
+testFiles = []
+testFiles.append(data_2014)
+testFiles.append(data_2015)
+frame2 = pd.concat(testFiles, axis=0, ignore_index=True)
+X_test = frame2[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]
+y_test = frame2[['NOX']]
 
+#normalize the data
 X_train = stats.zscore(X_train)
 y_train = stats.zscore(y_train)
 X_test = stats.zscore(X_test)
@@ -54,7 +64,7 @@ spcorr_1, p1 = spearmanr(y_val, y_predict1)
 
 r_sq_2 = model2.score(X_test, y_test)
 spcorr_2, p2 = spearmanr(y_test, y_predict2)
-
+print()
 print(" MODEL 1")
 print("mean absolute error:", mean_absolute_error(y_val, y_predict1))
 print("spearman correlation:", spcorr_1)
@@ -65,7 +75,6 @@ print("mean absolute error:", mean_absolute_error(y_test, y_predict2))
 print("spearman correlation:", spcorr_2)
 print('R_squared:', r_sq_2)
 print()
-
 print("#################")
 print("Phase 2:")
 #Get the training data and combine them
@@ -209,16 +218,16 @@ y_predict3 = model3.predict(X_OptimizationTestNorm)
 # print(spcorr_3)
 spcorr_3, p3 = spearmanr(Y_OptimizationTestNorm, y_predict3)
 r_sq_3 = model3.score(X_OptimizationTestNorm, Y_OptimizationTestNorm)
-mean_absolute_error = mean_absolute_error(Y_OptimizationTestNorm, y_predict3)
+mean_absolute_error_testing = mean_absolute_error(Y_OptimizationTestNorm, y_predict3)
 
-print("mean absolute error:", mean_absolute_error)
+print("mean absolute error:", mean_absolute_error_testing)
 print("spearman correlation:", spcorr_3)
 print('R_squared:', r_sq_3)
 
 #place labels on the bars
 importance = model3.coef_[0]
 plt.bar([x for x in range(len(importance))], importance)
-plt.show()
+# plt.show()
 
 print("#################")
 
@@ -227,15 +236,13 @@ print("Phase 3:")
 
 # divide 2013, 2014 and 2015 into 10 blocks of equal size
 validationSplit = data_2013
-validationSplit.apply(stats.zscore)
 X_SplitVal = validationSplit[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
 Y_SplitVal = validationSplit[['NOX']]
 
 files3 = []
 files3.append(data_2014)
 files3.append(data_2015)
-testingSplit = pd.concat(files2, axis=0, ignore_index=True)
-testingSplit.apply(stats.zscore)
+testingSplit = pd.concat(files3, axis=0, ignore_index=True)
 X_SplitTest = testingSplit[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
 Y_SplitTest = testingSplit[['NOX']]
 
@@ -245,25 +252,31 @@ Y_SplitValNorm = stats.zscore(Y_SplitVal)
 X_SplitTestNorm = stats.zscore(X_SplitTest)
 Y_SplitTestNorm = stats.zscore(Y_SplitTest)
 
-split_validation_array = np.array_split(validationSplit, 10)
+split_validation_array_x = np.array_split(X_SplitValNorm, 10)
+split_validation_array_y = np.array_split(Y_SplitValNorm, 10)
+
+
 split_testing_array = np.array_split(testingSplit, 10)
 
 #model 2 and model 3
 y = 0
 while y < 9:
-    x_split = split_testing_array[y][['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]
-    y_split = split_testing_array[y][['NOX']]
-    y_predictSplit = model1.predict(x_split)
-    spcorr_split, p3 = spearmanr(y_split, y_predictSplit)
-    r_sq_split = model1.score(x_split, y_split)
-    mean_absolute_error_split = mean_absolute_error(y_split, y_predictSplit)
+    x_split = split_validation_array_x[y]
+    y_split = split_validation_array_y[y]
+    y_predictSplit = model1.predict(X_SplitVal)
+    spcorr_split, p3 = spearmanr(Y_SplitVal, y_predictSplit)
+    r_sq_split = model1.score(X_SplitVal, Y_SplitVal)
+    mean_absolute_error_split = mean_absolute_error(Y_SplitVal, y_predictSplit)
     print()
-    print("training ", y)
+    print("training ", y + 1)
     print("mean absolute error:", mean_absolute_error_split)
     print("spearman correlation:", spcorr_split)
     print('R_squared:', r_sq_split)
     print()
-    model1 = LinearRegression.fit(pd.concat((X_train, x_split), axis=0, ignore_index=True))
+
+    fit_x = np.concatenate((X_train, x_split))
+    fit_y = np.concatenate((y_train, y_split))
+    model1 = LinearRegression().fit(fit_x, fit_y)
     y = y + 1
 
 print("#################")
