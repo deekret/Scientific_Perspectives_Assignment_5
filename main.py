@@ -67,28 +67,64 @@ print()
 
 print("#################")
 print("Phase 2:")
+#Get the training data and combine them
 files = []
 files.append(data_2011)
 files.append(data_2012)
 frame = pd.concat(files, axis=0, ignore_index=True)
 
-X = frame[['AT','AP', 'AFDP', 'TIT', 'TAT', 'TEY', 'CDP']]
-y = frame[['NOX']]
+X_OptimizationTrain = frame[['AT','AP', 'AFDP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
+Y_OptimizationTrain = frame[['NOX']]
+optimizationTrainDf = pd.DataFrame(X_OptimizationTrain)
 
-df = pd.DataFrame(X)
-
-CDPXTIT = []
+CDPXTITtrain = []
 i = 0
-
 while i < len(frame):
-    CDPXTIT.append(df['CDP'][i] * df['TIT'][i])
+    CDPXTITtrain.append(optimizationTrainDf['CDP'][i] * optimizationTrainDf['TIT'][i])
     i = i + 1
-df['CDPXTIT'] = CDPXTIT
+optimizationTrainDf['CDPXTIT'] = CDPXTITtrain
 
-X_OptimizationTrain = stats.zscore(df)
-Y_OptimizationTrain = stats.zscore(y)
+validationFrame = data_2013
+X_OptimizationVal = validationFrame[['AT','AP',  'AFDP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
+Y_OptimizationVal = validationFrame[['NOX']]
+optimizationValDf = pd.DataFrame(X_OptimizationVal)
 
-OptimizationModel = LinearRegression().fit(X_train, y_train)
+CDPXTITval = []
+x = 0
+while x < len(validationFrame):
+    CDPXTITval.append(optimizationValDf['CDP'][x] * optimizationValDf['TIT'][x])
+    x = x + 1
+optimizationValDf['CDPXTIT'] = CDPXTITval
+
+#Do a z normalisation with stat zscore
+X_OptimizationTrainNorm = stats.zscore(optimizationTrainDf)
+Y_OptimizationTrainNorm = stats.zscore(Y_OptimizationTrain)
+
+X_OptimizationValNorm = stats.zscore(optimizationValDf)
+Y_OptimizationValNorm = stats.zscore(Y_OptimizationVal)
+
+# #Do the linear regression with X and y
+model3 = LinearRegression().fit(X_OptimizationTrainNorm, Y_OptimizationTrainNorm)
+
+# #Create a prediction for y
+y_predict3 = model3.predict(X_OptimizationValNorm)
+
+# # Get spreaman correlation
+spcorr_3, p3 = spearmanr(Y_OptimizationValNorm, y_predict3)
+print(spcorr_3)
+# CDPXTIT = []
+# i = 0
+#
+# while i < len(frame):
+#     CDPXTIT.append(df['CDP'][i] * df['TIT'][i])
+#     i = i + 1
+# df['CDPXTIT'] = CDPXTIT
+
+# OptimizationModel = LinearRegression().fit(X_OptimizationTrain, Y_OptimizationTrain)
+# OptimizationModel = LinearRegression().fit(X_OptimizationTrain, Y_OptimizationTrain)
+# y_predict3 = OptimizationModel.predict(X)
+# spcorr_3, p1 = spearmanr(y, y_predict3)
+# print("spearman correlation:", spcorr_3)
 print("#################")
 
 
