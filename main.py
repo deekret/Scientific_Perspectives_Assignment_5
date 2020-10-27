@@ -67,6 +67,28 @@ print()
 
 print("#################")
 print("Phase 2:")
+files = []
+files.append(data_2011)
+files.append(data_2012)
+frame = pd.concat(files, axis=0, ignore_index=True)
+
+X = frame[['AT','AP', 'AFDP', 'TIT', 'TAT', 'TEY', 'CDP']]
+y = frame[['NOX']]
+
+df = pd.DataFrame(X)
+
+CDPXTIT = []
+i = 0
+
+while i < len(frame):
+    CDPXTIT.append(df['CDP'][i] * df['TIT'][i])
+    i = i + 1
+df['CDPXTIT'] = CDPXTIT
+
+X_OptimizationTrain = stats.zscore(df)
+Y_OptimizationTrain = stats.zscore(y)
+
+OptimizationModel = LinearRegression().fit(X_train, y_train)
 print("#################")
 
 
