@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import normalize
 from sklearn.metrics import mean_absolute_error
 from scipy.stats import spearmanr
 from scipy import stats
@@ -229,9 +230,41 @@ print('R_squared:', r_sq_3)
 
 #place labels on the bars
 importance = model3.coef_[0]
+importances = []
+sum = 0
+for x in importance:
+    sum += abs(x)
+for x in importance:
+    x = (abs(x) / sum)
+    importances.append(x)
 # Engineered features F1 = 'CDPXTIT', F2 = 'TEYXAT', F3 = 'AP2', F4 = 'TEYXAFDP'
-plt.bar(['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP', 'F1', 'F2', 'F3', 'F4'], importance)
+plt.bar(['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP', 'F1', 'F2', 'F3', 'F4'], importances)
 plt.show()
+
+print("####################")
+print("Instance at position 0 of test set: ")
+print(X_OptimizationValNorm[0])
+print(importance)
+
+y = 0
+for x,w in zip(X_OptimizationTestNorm[0], importance):
+    y += w*x
+print("calculated value:", y)
+print("actually generated value:", y_predict3[0])
+print()
+
+print("####################")
+print("Instance at position 200 of test set: ")
+print(X_OptimizationValNorm[200])
+print(importance)
+
+y = 0
+for x,w in zip(X_OptimizationTestNorm[199], importance):
+    y += w*x
+print("calculated value:", y)
+print("actually generated value:", y_predict3[199])
+print()
+
 
 print("#################")
 
@@ -325,16 +358,16 @@ y_predict3 = model3.predict(x_model3_array)
 spcorr_split1, p = spearmanr(y_model1_array, y_predict1)
 spcorr_split3, p = spearmanr(y_model3_array, y_predict3)
 
-print(spcorr_split1)
-print(spcorr_split3)
+print("Spearman correlation of model 1 prediction: ", spcorr_split1)
+print("Spearman correlation of model 3 prediction: ", spcorr_split3)
 
 stat, p = ttest_rel(y_predict1, y_predict3)
 print("TTest between original feature prediction and engineered feature prediction: ", stat)
 
 #y_predict_test = model3.predict((X_OptimizationTestNorm))
 #spcorr_test, p = spearmanr(y_predict3, Y_OptimizationTestNorm)
-print(spcorr_split3)
-print(spcorr_3_val)
+print("Spearman correlation of model 3 prediction: ", spcorr_split3)
+print("Spearman correlation of phase 2 model prediction: ", spcorr_3_val)
 
 #============================================================================================
 # online learning with testing set and with model 1
@@ -387,6 +420,30 @@ while q < 20:
     test_model_3 = LinearRegression().fit(x_model3_array, y_model3_array)
     q = q + 1
 print("#################")
+
+#============================================================================================
+# Perform a statistical test to compare the original set of features and our own engineered features
+
+y_predict1 = test_model_1.predict(x_model1_array)
+y_predict3 = test_model_3.predict(x_model3_array)
+
+spcorr_split1, p = spearmanr(y_model1_array, y_predict1)
+spcorr_split3, p = spearmanr(y_model3_array, y_predict3)
+
+print("Spearman correlation of model 1 prediction: ", spcorr_split1)
+print("Spearman correlation of model 3 prediction: ", spcorr_split3)
+
+stat, p = ttest_rel(y_predict1, y_predict3)
+print("TTest between original feature prediction and engineered feature prediction: ", stat)
+
+#y_predict_test = model3.predict((X_OptimizationTestNorm))
+#spcorr_test, p = spearmanr(y_predict3, Y_OptimizationTestNorm)
+print("Spearman correlation of model 3 prediction: ", spcorr_split3)
+print("Spearman correlation of phase 2 model prediction: ", spcorr_3)
+
+#============================================================================================
+
+
 
 
 
