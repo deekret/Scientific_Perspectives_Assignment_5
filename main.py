@@ -2,15 +2,11 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import normalize
 from sklearn.metrics import mean_absolute_error
 from scipy.stats import spearmanr
 from scipy import stats
 import matplotlib.pyplot as plt
 from scipy.stats import ttest_rel
-from sklearn.decomposition import PCA
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
 
 data_2011 = pd.read_csv("pp_gas_emission/gt_2011.csv")
 data_2012 = pd.read_csv("pp_gas_emission/gt_2012.csv")
@@ -104,30 +100,14 @@ AFDPminAPtrain = []
 i = 0
 while i < len(frame):
     CDPXTITtrain.append(optimizationTrainDf['CDP'][i] * optimizationTrainDf['TIT'][i])
-    # TEYXTITtrain.append(optimizationTrainDf['TEY'][i] * optimizationTrainDf['TIT'][i])
-    # CDPXTEYtrain.append(optimizationTrainDf['CDP'][i] * optimizationTrainDf['TEY'][i])
     TEYXATtrain.append(optimizationTrainDf['TEY'][i] * optimizationTrainDf['AT'][i])
     AP2train.append(optimizationTrainDf['AP'][i] * optimizationTrainDf['AP'][i])
     TEYXAFDPtrain.append(optimizationTrainDf['TEY'][i] * optimizationTrainDf['AFDP'][i])
-    # ATXCDPtrain.append(optimizationTrainDf['AT'][i] * optimizationTrainDf['CDP'][i])
-    # AFDPminAPtrain.append(optimizationTrainDf['AFDP'][i] / optimizationTrainDf['AP'][i])
-    # AFDP2train.append(optimizationTrainDf['AFDP'][i] * optimizationTrainDf['AFDP'][i])
-    # TITXTATtrain.append(optimizationTrainDf['TIT'][i] * optimizationTrainDf['TAT'][i])
-    # TEYsqrttrain.append(math.sqrt(optimizationTrainDf['TEY'][i]))
-    # ATXAPtrain.append(optimizationTrainDf['AT'][i] * optimizationTrainDf['AP'][i])
     i = i + 1
 optimizationTrainDf['CDPXTIT'] = CDPXTITtrain
-# optimizationTrainDf['CDPXTEY'] = CDPXTEYtrain
-# optimizationTrainDf['TEYXTIT'] = TEYXTITtrain
 optimizationTrainDf['TEYXAT'] = TEYXATtrain
 optimizationTrainDf['AP2'] = AP2train
 optimizationTrainDf['TEYXAFDP'] = TEYXAFDPtrain
-# optimizationTrainDf['ATXCDP'] = ATXCDPtrain
-# optimizationTrainDf['AFDPminAP'] = AFDPminAPtrain
-# optimizationTrainDf['AFDP2'] = AFDP2train
-# optimizationTrainDf['TITXTAT'] = TITXTATtrain
-# optimizationTrainDf['TEYsqrt'] = TEYsqrttrain
-# optimizationTrainDf['ATXAP'] = ATXAPtrain
 
 validationFrame = data_2013
 X_OptimizationVal = validationFrame[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
@@ -135,44 +115,20 @@ Y_OptimizationVal = validationFrame[['NOX']]
 optimizationValDf = pd.DataFrame(X_OptimizationVal)
 
 CDPXTITval = []
-# TEYXTITval = []
-# CDPXTEYval = []
 TEYXATval = []
 AP2val = []
 TEYXAFDPval = []
-# ATXCDPval = []
-# AFDPminAPval = []
-# AFDP2val = []
-# TITXTATval = []
-# TEYsqrtval = []
-# ATXAPval = []
 x = 0
 while x < len(validationFrame):
     CDPXTITval.append(optimizationValDf['CDP'][x] * optimizationValDf['TIT'][x])
-    # TEYXTITval.append(optimizationValDf['TEY'][x] * optimizationValDf['TIT'][x])
-    # CDPXTEYval.append(optimizationValDf['CDP'][x] * optimizationValDf['TEY'][x])
     TEYXATval.append(optimizationValDf['TEY'][x] * optimizationValDf['AT'][x])
     AP2val.append(optimizationValDf['AP'][x] * optimizationValDf['AP'][x])
     TEYXAFDPval.append(optimizationValDf['TEY'][x] * optimizationValDf['AFDP'][x])
-    # ATXCDPval.append(optimizationValDf['AT'][x] * optimizationValDf['CDP'][x])
-    # AFDPminAPval.append(optimizationValDf['AFDP'][x] * optimizationValDf['AP'][x])
-    # AFDP2val.append(optimizationValDf['AFDP'][x] * optimizationValDf['AFDP'][x])
-    # TITXTATval.append(optimizationValDf['TIT'][x] * optimizationValDf['TAT'][x])
-    # TEYsqrtval.append(math.sqrt(optimizationValDf['TEY'][x]))
-    # ATXAPval.append(optimizationValDf['AT'][x] * optimizationValDf['AP'][x])
     x = x + 1
 optimizationValDf['CDPXTIT'] = CDPXTITval
-# optimizationValDf['CDPXTEY'] = CDPXTEYval
-# optimizationValDf['TEYXTIT'] = TEYXTITval
 optimizationValDf['TEYXAT'] = TEYXATval
 optimizationValDf['AP2'] = AP2val
 optimizationValDf['TEYXAFDP'] = TEYXAFDPval
-# optimizationValDf['ATXCDP'] = ATXCDPval
-# optimizationValDf['AFDPminAP'] = AFDPminAPval
-# optimizationValDf['AFDP2'] = AFDP2val
-# optimizationValDf['TITXTAT'] = TITXTATval
-# optimizationValDf['TEYsqrt'] = TEYsqrtval
-# optimizationValDf['ATXAP'] = ATXAPval
 
 files2 = []
 files2.append(data_2014)
@@ -217,9 +173,6 @@ y_predict3 = model3.predict(X_OptimizationValNorm)
 spcorr_3_val, p3 = spearmanr(Y_OptimizationValNorm, y_predict3)
 y_predict3 = model3.predict(X_OptimizationTestNorm)
 
-# # Get spreaman correlation
-# spcorr_3, p3 = spearmanr(Y_OptimizationValNorm, y_predict3)
-# print(spcorr_3)
 spcorr_3, p3 = spearmanr(Y_OptimizationTestNorm, y_predict3)
 r_sq_3 = model3.score(X_OptimizationTestNorm, Y_OptimizationTestNorm)
 mean_absolute_error_testing = mean_absolute_error(Y_OptimizationTestNorm, y_predict3)
@@ -237,6 +190,7 @@ for x in importance:
 for x in importance:
     x = (abs(x) / sum)
     importances.append(x)
+
 # Engineered features F1 = 'CDPXTIT', F2 = 'TEYXAT', F3 = 'AP2', F4 = 'TEYXAFDP'
 plt.bar(['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP', 'F1', 'F2', 'F3', 'F4'], importances)
 plt.show()
@@ -364,8 +318,6 @@ print("Spearman correlation of model 3 prediction: ", spcorr_split3)
 stat, p = ttest_rel(y_predict1, y_predict3)
 print("TTest between original feature prediction and engineered feature prediction: ", stat)
 
-#y_predict_test = model3.predict((X_OptimizationTestNorm))
-#spcorr_test, p = spearmanr(y_predict3, Y_OptimizationTestNorm)
 print("Spearman correlation of model 3 prediction: ", spcorr_split3)
 print("Spearman correlation of phase 2 model prediction: ", spcorr_3_val)
 
@@ -436,8 +388,6 @@ print("Spearman correlation of model 3 prediction: ", spcorr_split3)
 stat, p = ttest_rel(y_predict1, y_predict3)
 print("TTest between original feature prediction and engineered feature prediction: ", stat)
 
-#y_predict_test = model3.predict((X_OptimizationTestNorm))
-#spcorr_test, p = spearmanr(y_predict3, Y_OptimizationTestNorm)
 print("Spearman correlation of model 3 prediction: ", spcorr_split3)
 print("Spearman correlation of phase 2 model prediction: ", spcorr_3)
 
