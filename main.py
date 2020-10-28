@@ -6,6 +6,7 @@ from sklearn.metrics import mean_absolute_error
 from scipy.stats import spearmanr
 from scipy import stats
 import matplotlib.pyplot as plt
+from scipy.stats import ttest_rel
 from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
@@ -210,7 +211,9 @@ Y_OptimizationTestNorm = stats.zscore(Y_OptimizationTest)
 model3 = LinearRegression().fit(X_OptimizationTrainNorm, Y_OptimizationTrainNorm)
 
 # #Create a prediction for y
-# y_predict3 = model3.predict(X_OptimizationValNorm)
+y_predict3 = model3.predict(X_OptimizationValNorm)
+
+spcorr_3_val, p3 = spearmanr(Y_OptimizationValNorm, y_predict3)
 y_predict3 = model3.predict(X_OptimizationTestNorm)
 
 # # Get spreaman correlation
@@ -226,8 +229,9 @@ print('R_squared:', r_sq_3)
 
 #place labels on the bars
 importance = model3.coef_[0]
-plt.bar([x for x in range(len(importance))], importance)
-# plt.show()
+# Engineered features F1 = 'CDPXTIT', F2 = 'TEYXAT', F3 = 'AP2', F4 = 'TEYXAFDP'
+plt.bar(['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP', 'F1', 'F2', 'F3', 'F4'], importance)
+plt.show()
 
 print("#################")
 
@@ -313,8 +317,24 @@ while q < 10:
     q = q + 1
 
 #============================================================================================
+# Perform a statistical test to compare the original set of features and our own engineered features
 
-#TODO: apply a statistical test and report the significance
+y_predict1 = model1.predict(x_model1_array)
+y_predict3 = model3.predict(x_model3_array)
+
+spcorr_split1, p = spearmanr(y_model1_array, y_predict1)
+spcorr_split3, p = spearmanr(y_model3_array, y_predict3)
+
+print(spcorr_split1)
+print(spcorr_split3)
+
+stat, p = ttest_rel(y_predict1, y_predict3)
+print("TTest between original feature prediction and engineered feature prediction: ", stat)
+
+#y_predict_test = model3.predict((X_OptimizationTestNorm))
+#spcorr_test, p = spearmanr(y_predict3, Y_OptimizationTestNorm)
+print(spcorr_split3)
+print(spcorr_3_val)
 
 #============================================================================================
 # online learning with testing set and with model 1
