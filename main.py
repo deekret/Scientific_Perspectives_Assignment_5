@@ -233,8 +233,6 @@ print("#################")
 
 print("#################")
 print("Phase 3:")
-
-# divide 2013, 2014 and 2015 into 10 blocks of equal size
 validationSplit = data_2013
 X_SplitVal = validationSplit[['AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP']]  #'AT','AP', 'AH', 'AFDP', 'GTEP', 'TIT', 'TAT', 'TEY', 'CDP'
 Y_SplitVal = validationSplit[['NOX']]
@@ -252,33 +250,122 @@ Y_SplitValNorm = stats.zscore(Y_SplitVal)
 X_SplitTestNorm = stats.zscore(X_SplitTest)
 Y_SplitTestNorm = stats.zscore(Y_SplitTest)
 
-split_validation_array_x = np.array_split(X_SplitValNorm, 10)
-split_validation_array_y = np.array_split(Y_SplitValNorm, 10)
+split_model1_validation_array_x = np.array_split(X_SplitValNorm, 10)
+split_model1_validation_array_y = np.array_split(Y_SplitValNorm, 10)
 
+split_model3_validation_array_x = np.array_split(X_OptimizationValNorm, 10)
+split_model3_validation_array_y = np.array_split(Y_OptimizationValNorm, 10)
 
-split_testing_array = np.array_split(testingSplit, 10)
+split_model1_testing_array_x = np.array_split(X_SplitTestNorm, 20)
+split_model1_testing_array_y = np.array_split(Y_SplitTestNorm, 20)
 
-#model 2 and model 3
+split_model3_testing_array_x = np.array_split(X_OptimizationTestNorm, 20)
+split_model3_testing_array_y = np.array_split(Y_OptimizationTestNorm, 20)
+
+#online learning with validation set and with model 1
+val_model_1 = model1
+x_model1_array = X_train
+y_model1_array = y_train
 y = 0
-while y < 9:
-    x_split = split_validation_array_x[y]
-    y_split = split_validation_array_y[y]
-    y_predictSplit = model1.predict(X_SplitVal)
-    spcorr_split, p3 = spearmanr(Y_SplitVal, y_predictSplit)
-    r_sq_split = model1.score(X_SplitVal, Y_SplitVal)
-    mean_absolute_error_split = mean_absolute_error(Y_SplitVal, y_predictSplit)
+while y < 10:
+    x_split = split_model1_validation_array_x[y]
+    y_split = split_model1_validation_array_y[y]
+    y_predictSplit = val_model_1.predict(x_split)
+    spcorr_split, p3 = spearmanr(y_split, y_predictSplit)
+    r_sq_split = val_model_1.score(x_split, y_split)
+    mean_absolute_error_split = mean_absolute_error(y_split, y_predictSplit)
     print()
-    print("training ", y + 1)
+    print("training original set", y + 1)
     print("mean absolute error:", mean_absolute_error_split)
     print("spearman correlation:", spcorr_split)
     print('R_squared:', r_sq_split)
     print()
 
-    fit_x = np.concatenate((X_train, x_split))
-    fit_y = np.concatenate((y_train, y_split))
-    model1 = LinearRegression().fit(fit_x, fit_y)
+    x_model1_array = np.concatenate((x_model1_array, x_split))
+    y_model1_array = np.concatenate((y_model1_array, y_split))
+
+    val_model_1 = LinearRegression().fit(x_model1_array, y_model1_array)
     y = y + 1
 
+#online learning with validation set and with our own created features
+val_model_3 = model3
+x_model3_array = X_OptimizationTrainNorm
+y_model3_array = Y_OptimizationTrainNorm
+q = 0
+while q < 10:
+    x_split = split_model3_validation_array_x[q]
+    y_split = split_model3_validation_array_y[q]
+    y_predictSplit = val_model_3.predict(x_split)
+    spcorr_split, p3 = spearmanr(y_split, y_predictSplit)
+    r_sq_split = val_model_3.score(x_split, y_split)
+    mean_absolute_error_split = mean_absolute_error(y_split, y_predictSplit)
+    print()
+    print("training created feature set", q + 1)
+    print("mean absolute error:", mean_absolute_error_split)
+    print("spearman correlation:", spcorr_split)
+    print('R_squared:', r_sq_split)
+    print()
+
+    x_model3_array = np.concatenate((x_model3_array, x_split))
+    y_model3_array = np.concatenate((y_model3_array, y_split))
+
+    val_model_3 = LinearRegression().fit(x_model3_array, y_model3_array)
+    q = q + 1
+
+#============================================================================================
+
+#TODO: apply a statistical test and report the significance
+
+#============================================================================================
+# online learning with testing set and with model 1
+test_model_1 = model1
+x_model1_array = np.concatenate((X_train, X_SplitValNorm))
+y_model1_array = np.concatenate((y_train, Y_SplitValNorm))
+y = 0
+while y < 20:
+    x_split = split_model1_testing_array_x[y]
+    y_split = split_model1_testing_array_y[y]
+    y_predictSplit = test_model_1.predict(x_split)
+    spcorr_split, p3 = spearmanr(y_split, y_predictSplit)
+    r_sq_split = test_model_1.score(x_split, y_split)
+    mean_absolute_error_split = mean_absolute_error(y_split, y_predictSplit)
+    print()
+    print("training original set", y + 1)
+    print("mean absolute error:", mean_absolute_error_split)
+    print("spearman correlation:", spcorr_split)
+    print('R_squared:', r_sq_split)
+    print()
+
+    x_model1_array = np.concatenate((x_model1_array, x_split))
+    y_model1_array = np.concatenate((y_model1_array, y_split))
+
+    test_model_1 = LinearRegression().fit(x_model1_array, y_model1_array)
+    y = y + 1
+
+#online learning with testing set and with our own created features
+test_model_3 = model3
+x_model3_array = np.concatenate((X_OptimizationTrainNorm, X_OptimizationValNorm))
+y_model3_array = np.concatenate((Y_OptimizationTrainNorm, Y_OptimizationValNorm))
+q = 0
+while q < 20:
+    x_split = split_model3_testing_array_x[q]
+    y_split = split_model3_testing_array_y[q]
+    y_predictSplit = test_model_3.predict(x_split)
+    spcorr_split, p3 = spearmanr(y_split, y_predictSplit)
+    r_sq_split = test_model_3.score(x_split, y_split)
+    mean_absolute_error_split = mean_absolute_error(y_split, y_predictSplit)
+    print()
+    print("training created feature set", q + 1)
+    print("mean absolute error:", mean_absolute_error_split)
+    print("spearman correlation:", spcorr_split)
+    print('R_squared:', r_sq_split)
+    print()
+
+    x_model3_array = np.concatenate((x_model3_array, x_split))
+    y_model3_array = np.concatenate((y_model3_array, y_split))
+
+    test_model_3 = LinearRegression().fit(x_model3_array, y_model3_array)
+    q = q + 1
 print("#################")
 
 
